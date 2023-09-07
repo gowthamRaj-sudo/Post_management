@@ -1,18 +1,25 @@
 import {Typography,Grid, Box, Badge, Button }from '@mui/material';
+import Cookies from 'universal-cookie';
 import './App.css';
-import PostCard from "./Components/PostCard";
-import { AiFillDelete } from "react-icons/ai";
-import SearchComponent from './Components/SearchComponent';
+// import PostCard from "./Components/PostCard";
+// import { AiFillDelete } from "react-icons/ai";
+// import SearchComponent from './Components/SearchComponent';
 import PostCardContainer from './PostCardContainer';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 function App() {
+  const cookies = new Cookies();
   const[allPostData,setAllPostData]=useState([])
   const getAllPostData=async()=>{
     try{
       const response=await axios.get(` https://jsonplaceholder.typicode.com/posts`)
       if(response.status===200){
+        const responseData=JSON.stringify (response.data)
+        localStorage.setItem("AllPosts", (responseData));
+ 
+       
+        // console.log("api reapose",JSON.stringify(responseData))
         setAllPostData(response.data)
       }
     }catch(error){
@@ -20,7 +27,10 @@ function App() {
     }
 
   }
-  console.log(allPostData)
+  const postDataString = localStorage.getItem("AllPosts");
+const postData = JSON.parse(postDataString);
+
+console.log("Data from localStorage:", postData);
 useEffect(()=>{
   getAllPostData()
 },[])
@@ -31,26 +41,9 @@ useEffect(()=>{
 <Typography variant="p" sx={{color:"white"}}>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</Typography>
     </div>
- {/* <Grid container spacing={2}  p={5}>
-  <Grid item xl={8} lg={8} md={8} sm={6} xs={12}>
-    <Box>
-    <SearchComponent/>
-  </Box>
-  </Grid>
-  <Grid item xl={4} lg={4} md={4} sm={6} xs={12}>
-    <Box sx={{display:"flex",justifyContent:"space-around",alignItems:"center"}} >
-<Badge badgeContent={4} color="primary" >
-<AiFillDelete color='white' size={25}/>
-</Badge>
-<Box>
-  <Button variant='contained'>Refresh</Button>
-</Box>
-</Box>
-  </Grid>
- </Grid> */}
- {/* Post Cards */}
+ 
 
-{allPostData.length>0?<PostCardContainer data={allPostData}/>:<Typography sx={{color:"white"}}>"no post Found !"</Typography> }
+{allPostData.length>0?<PostCardContainer data={postData?postData: allPostData}/>:<Typography sx={{color:"white"}}>"no post Found !"</Typography> }
 
     </div>
   );
